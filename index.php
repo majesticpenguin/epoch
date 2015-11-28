@@ -94,7 +94,7 @@ html{
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
 }
-#calendar-table tbody:before{
+#calendar-table thead:after{
     content: " ";
     height: 2px;
     display: inline-block;
@@ -209,8 +209,10 @@ var Cal = (function($, moment){
          * init
          * constructor
          * buildcalendar
+         * buildcalendartbody
          * inibuttons
-         * updateCurrentDate
+         * updatecalendartbody
+         * updatecurrentdate
          */        
 
         init: function(callback){
@@ -236,28 +238,11 @@ var Cal = (function($, moment){
                     $this.currentDate = moment();
                     var currentDateObj = $this.currentDate.toObject();
                     var currentDateFormated = $this.currentDate.format($this.format);
-                    var totalDays = moment($this.currentDate).daysInMonth(); 
-                    var firstDayOfMonth = moment($this.currentDate).startOf('month').format('d');
-                    var lastDayOfMonth = moment($this.currentDate).endOf('month').format('d');
                     var calendarTableHTML = '';       
                     var calendarHeaderHTML = '';                    
 
                     /* Numbers Days Grid */
-                    for(i=1;i<=totalDays;i++){
-                        var eow = moment(currentDateObj.years+'-'+(currentDateObj.months + 1)+'-'+i).endOf('week').format('D');
-                        var current = currentDateObj.date == i ? ' current ' : '';
-
-                        calendarTableHTML += '<td class="day'+current+'">'+i+'</td>';
-                        calendarTableHTML += eow == i ? '</tr><tr>' : '';
-                    }
-                    /* Fill Beginning Grid */
-                    for(i=0;i<firstDayOfMonth;i++){
-                        calendarTableHTML = '<td>&nbsp;</td>'+calendarTableHTML;
-                    }
-                    /* Fill End Grid */
-                    for(i=lastDayOfMonth;i<6;i++){
-                        calendarTableHTML += '<td>&nbsp;</td>';
-                    }
+                    calendarTableHTML = $this.buildcalendartbody(currentDateObj);
                 
                     /* Weekdays Headers */
                     for(i=0;i<$this.weekdays.one.length;i++){
@@ -292,9 +277,7 @@ var Cal = (function($, moment){
                                     </tr> \
                                 </thead> \
                                 <tbody> \
-                                    <tr> \
-                                        '+calendarTableHTML+' \
-                                    </tr> \
+                                    '+calendarTableHTML+' \
                                 </tbody> \
                             </table> \
                             <div id="timepicker-wrapper"> \
@@ -329,6 +312,33 @@ var Cal = (function($, moment){
                     $this.datepicker = datepickerHTML;
                     $('body').prepend(datepickerHTML);
                 },
+
+                buildcalendartbody: function(){
+                    var currentDateObj = $this.currentDate.toObject();
+                    var totalDays = moment($this.currentDate).daysInMonth();
+                    var firstDayOfMonth = moment($this.currentDate).startOf('month').format('d');
+                    var lastDayOfMonth = moment($this.currentDate).endOf('month').format('d');
+                    var calendarTableHTML = '';
+
+                    /* Numbers Days Grid */
+                    for(i=1;i<=totalDays;i++){
+                        var eow = moment(currentDateObj.years+'-'+(currentDateObj.months + 1)+'-'+i).endOf('week').format('D');
+                        var current = currentDateObj.date == i ? ' current ' : '';
+
+                        calendarTableHTML += '<td class="day'+current+'">'+i+'</td>';
+                        calendarTableHTML += eow == i ? '</tr><tr>' : '';
+                    }
+                    /* Fill Beginning Grid */
+                    for(i=0;i<firstDayOfMonth;i++){
+                        calendarTableHTML = '<td>&nbsp;</td>'+calendarTableHTML;
+                    }
+                    /* Fill End Grid */
+                    for(i=lastDayOfMonth;i<6;i++){
+                        calendarTableHTML += '<td>&nbsp;</td>';
+                    }
+                    
+                    return '<tr>'+calendarTableHTML+'</tr>';
+                },
         
                 initbuttons: function(){
                     $('#datepicker-wrapper').on('click.scroller.up', '.up', function(event){
@@ -354,7 +364,7 @@ var Cal = (function($, moment){
                                 ul.find('li:first-child').addClass('current');
                             }
 
-                            $this.updateCurrentDate();
+                            $this.updatecurrentdate();
                         });
 
                         event.stopImmediatePropagation();
@@ -380,7 +390,7 @@ var Cal = (function($, moment){
                                 ul.find('li:last-child').addClass('current');
                             }
 
-                            $this.updateCurrentDate();
+                            $this.updatecurrentdate();
                         });
 
                         event.stopImmediatePropagation();
@@ -395,13 +405,13 @@ var Cal = (function($, moment){
                                 .attr('data-offset', '0').html('AM');
                         }
                 
-                        $this.updateCurrentDate();
+                        $this.updatecurrentdate();
                         event.stopImmediatePropagation();
                     }).on('click.date.day', '.day', function(event){
                         $('.day').removeClass('current');
                         $(this).addClass('current');
 
-                        $this.updateCurrentDate();
+                        $this.updatecurrentdate();
                         event.stopImmediatePropagation();
                     }).on('click.monthyear.prev', '.monthyear .prev', function(event){
                         var spanm = $(this).next('.month');
@@ -413,9 +423,12 @@ var Cal = (function($, moment){
                         /*update year*/
                         spany.html(monthyear.format('YYYY'));
                 
-                        $this.updateCurrentDate();
+                        $this.updatecurrentdate(function(){
+                            $this.updatecalendartbody();
+                        });
+
                         event.stopImmediatePropagation();
-                    }).on('click.monthyear.prev', '.monthyear .next', function(event){
+                    }).on('click.monthyear.next', '.monthyear .next', function(event){
                         var spany = $(this).prev('.year');
                         var spanm = spany.prev('.month');
                         var monthyear = moment([spany.html(), (moment().month(spanm.html()).format('M') - 1)]).add(1, 'M');
@@ -425,12 +438,20 @@ var Cal = (function($, moment){
                         /*update year*/
                         spany.html(monthyear.format('YYYY'));
                 
-                        $this.updateCurrentDate();
+                        $this.updatecurrentdate(function(){
+                            $this.updatecalendartbody();
+                        });
+
                         event.stopImmediatePropagation();
                     });
                 },
 
-                updateCurrentDate: function(){
+                updatecalendartbody: function(){
+                    var calendarTbodyHTML = $this.buildcalendartbody();
+                    $this.datepicker.find('tbody').html(calendarTbodyHTML);
+                },
+
+                updatecurrentdate: function(callback){
                     var year = $this.datepicker.find('thead .monthyear .year').html();
                     var month = (moment().month($this.datepicker.find('thead .monthyear .month').html()).format('MM') - 1);
                     var day = $this.datepicker.find('tbody td.current').html();
@@ -441,7 +462,9 @@ var Cal = (function($, moment){
                     //console.log(year+' '+month+' '+day+' '+hour+' '+minutes);
 
                     $this.currentDate = moment([year, month, day, hour, minutes]);
-                    $this.datepicker.find('input.currentDate').val($this.currentDate.format($this.format)); 
+                    $this.datepicker.find('input.currentDate').val($this.currentDate.format($this.format));
+
+                    return callback && typeof(callback) === 'function' ? callback() : true; 
                 }
             }
     
