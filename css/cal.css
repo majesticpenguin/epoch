@@ -1,0 +1,185 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+@font-face {
+    font-family:'datepicker-icons';
+    src: url(data:application/font-ttf;charset=utf-8;base64,AAEAAAALAIAAAwAwT1MvMg8SBYAAAAC8AAAAYGNtYXAXVtKIAAABHAAAAFRnYXNwAAAAEAAAAXAAAAAIZ2x5ZtsLkNUAAAF4AAAA3GhlYWQHxxV5AAACVAAAADZoaGVhB3ADxwAAAowAAAAkaG10eA4AAKQAAAKwAAAAGGxvY2EAlgBaAAACyAAAAA5tYXhwAAgAFgAAAtgAAAAgbmFtZY+uuhQAAAL4AAAB8nBvc3QAAwAAAAAE7AAAACAAAwNVAZAABQAAApkCzAAAAI8CmQLMAAAB6wAzAQkAAAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAAAAAAAABAAADpAQPA/8AAQAPAAEAAAAABAAAAAAAAAAAAAAAgAAAAAAADAAAAAwAAABwAAQADAAAAHAADAAEAAAAcAAQAOAAAAAoACAACAAIAAQAg6QH//f//AAAAAAAg6QD//f//AAH/4xcEAAMAAQAAAAAAAAAAAAAAAQAB//8ADwABAAAAAAAAAAAAAgAANzkBAAAAAAEAAAAAAAAAAAACAAA3OQEAAAAAAQAAAAAAAAAAAAIAADc5AQAAAAABAFIA0gOuApQAEwAAATYyFxYUBwEGIicBJjQ3NjIXCQEDfAoeCgoK/msKHgr+awoKCh4KAXwBfAKUCgoKHQv+cAsLAZALHQoKCv6SAW4AAAEAUgEGA64CyAATAAATBiInJjQ3ATYyFwEWFAcGIicJAYQKHgoKCgGVCh4KAZUKCgoeCv6E/oQBBgsLCh0KAZEKCv5vCh0KCwsBbf6TAAAAAQAAAAEAAOA/oONfDzz1AAsEAAAAAADSfWjaAAAAANJ9aNoAAAAAA64CyAAAAAgAAgAAAAAAAAABAAADwP/AAAAEAAAAAAADrgABAAAAAAAAAAAAAAAAAAAABgQAAAAAAAAAAAAAAAIAAAAEAABSBAAAUgAAAAAACgAUAB4ARgBuAAAAAQAAAAYAFAABAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA4ArgABAAAAAAABABAAAAABAAAAAAACAAcAsQABAAAAAAADABAAUQABAAAAAAAEABAAxgABAAAAAAAFAAsAMAABAAAAAAAGABAAgQABAAAAAAAKABoA9gADAAEECQABACAAEAADAAEECQACAA4AuAADAAEECQADACAAYQADAAEECQAEACAA1gADAAEECQAFABYAOwADAAEECQAGACAAkQADAAEECQAKADQBEGRhdGVwaWNrZXItaWNvbnMAZABhAHQAZQBwAGkAYwBrAGUAcgAtAGkAYwBvAG4Ac1ZlcnNpb24gMS4wAFYAZQByAHMAaQBvAG4AIAAxAC4AMGRhdGVwaWNrZXItaWNvbnMAZABhAHQAZQBwAGkAYwBrAGUAcgAtAGkAYwBvAG4Ac2RhdGVwaWNrZXItaWNvbnMAZABhAHQAZQBwAGkAYwBrAGUAcgAtAGkAYwBvAG4Ac1JlZ3VsYXIAUgBlAGcAdQBsAGEAcmRhdGVwaWNrZXItaWNvbnMAZABhAHQAZQBwAGkAYwBrAGUAcgAtAGkAYwBvAG4Ac0ZvbnQgZ2VuZXJhdGVkIGJ5IEljb01vb24uAEYAbwBuAHQAIABnAGUAbgBlAHIAYQB0AGUAZAAgAGIAeQAgAEkAYwBvAE0AbwBvAG4ALgAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=) format('truetype');
+}
+html{
+    font-family: 'Roboto';
+    background-color: #222;
+}
+#datepicker-wrapper{
+    background-color: #FFF;
+    padding: 20px 20px 10px;
+    display: inline-block;
+    
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+#calendar-table{
+    width: 100%;
+    text-align: center;
+}
+#calendar-table td{
+    border-bottom: 1px solid #CCC;
+    padding: 8px 10px 6px;
+    cursor: pointer;
+}
+#calendar-table td.current{
+    box-shadow: 5px 0 0 #AADBDF inset, -5px 0 0 #AADBDF inset;
+}
+#calendar-table tr:first-child td{
+    border-top: 1px solid #CCC;
+}
+#calendar-table tr:last-child td{
+    border-bottom: 0;
+}
+#calendar-table thead tr:last-child th{
+    border-bottom: 1px solid #CCC;
+    padding: 8px 10px 6px;
+}
+#calendar-table thead th.monthyear{
+    font-size: 1.5rem;
+    font-weight: normal;
+    padding: 15px 0;
+    line-height: 1rem;
+}
+#calendar-table thead th.monthyear span.prev:after{
+    content: "\e901";
+    font-size: 1.3rem;
+    color: #999;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    transform: rotate(-90deg);
+    display: inline-block;
+    float: left;
+        /* use !important to prevent issues with browser extensions that change fonts */
+        font-family: 'datepicker-icons' !important;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+
+        /* Better Font Rendering =========== */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+}
+#calendar-table thead th.monthyear span.next:after{
+    content: "\e901";
+    font-size: 1.3rem;
+    color: #999;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    transform: rotate(90deg);
+    display: inline-block;
+    float: right;
+        /* use !important to prevent issues with browser extensions that change fonts */
+        font-family: 'datepicker-icons' !important;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+
+        /* Better Font Rendering =========== */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+}
+#calendar-table thead:after{
+    content: " ";
+    height: 2px;
+    display: inline-block;
+}
+#timepicker-wrapper{
+    display: table;
+    margin: 20px 0 10px;
+    width: 100%;
+}
+#timepicker-wrapper > div{
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+#timepicker-wrapper > div:first-child{
+    padding-left: 0;
+}
+#datepicker-wrapper .scroller .up{
+    box-shadow: 0 15px 20px 0px #FFF;
+}
+#datepicker-wrapper .scroller .down{
+    box-shadow: 0 -15px 20px 0px #FFF;
+}
+#datepicker-wrapper .scroller .up,
+#datepicker-wrapper .scroller .down{
+    font-size: 2.5rem;
+    color: #999;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+        /* use !important to prevent issues with browser extensions that change fonts */
+        font-family: 'datepicker-icons' !important;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+
+        /* Better Font Rendering =========== */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+}
+#datepicker-wrapper .scroller .up:before{
+    content: "\e901";
+}
+#datepicker-wrapper .scroller .down:before{
+    content: "\e900";
+}
+#datepicker-wrapper .scroller ul{
+    margin: 0;
+    padding: 0;
+    height: 70px;
+    overflow: hidden;
+    width: 50px;
+    font-size: 3rem;
+    position: relative;
+}
+#datepicker-wrapper .scroller ul li{
+    padding: 35px 0;
+    line-height: 0rem;
+    position: relative;
+}
+#timepicker-wrapper .scroller ul{
+    width: unset;
+}
+#timepicker-wrapper .colon{
+    font-size: 3rem;
+}
+#timepicker-wrapper .period{
+    width: 70px;
+    padding: 0 20px;
+}
+#timepicker-wrapper .period div{
+    box-shadow: 0px 1px 1px -1px rgba(0,0,0,0.5);
+    padding: 7px 16px;
+    font-size: 1.6rem;
+    border: 1px solid #DDD;
+    cursor: pointer;
+}
+#actions-wrapper{
+    text-align: right;
+}
+#actions-wrapper .button{
+    display: inline-block;
+    padding: 10px 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
