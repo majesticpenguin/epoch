@@ -265,7 +265,7 @@ var Cal = (function($, moment){
             
                 loadtriggers: function(){
                     $($this.trigger).on('click.datepicker.trigger', function(){
-                        var datetime = $(this).val();
+                        var datetime = $(this).val().length <= 0 ?  moment() : $(this).val();
                         $this.setcalendar(datetime);
                     });
                 },
