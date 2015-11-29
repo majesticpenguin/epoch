@@ -14,7 +14,7 @@ var Cal = (function($, moment){
     }
 
     Cal.prototype = {
-        
+
         /**
          * init
          * constructor
@@ -22,7 +22,12 @@ var Cal = (function($, moment){
          * buildcalendartbody
          * inibuttons
          * loadtriggers
+         * revealCal
          * setcalendar
+         * setday
+         * sethour
+         * setminute
+         * setmonthyear
          * updatecalendartbody
          * updatecurrentdate
          */        
@@ -82,7 +87,7 @@ var Cal = (function($, moment){
                     }
 
                     $this.datepicker = $(' \
-                        <div id="datepicker-wrapper" style="display:;"> \
+                        <div id="datepicker-wrapper" style="display:none;"> \
                             <input type="hidden" class="currentDate" value="'+currentDateFormated+'" /> \
                             <table id="calendar-table" border="0" cellspacing="0" cellpadding="0"> \
                                 <thead> \
@@ -270,6 +275,9 @@ var Cal = (function($, moment){
                     });
                 },
 
+                revealCal: function(){
+                },
+
                 setcalendar: function(datetime){
                     $this.currentDate = moment(new Date(datetime));
 
@@ -279,6 +287,8 @@ var Cal = (function($, moment){
                     $this.setday();
                     $this.sethour();
                     $this.setminute();
+
+                    $this.revealCal();
                 },
 
                 setday: function(){
