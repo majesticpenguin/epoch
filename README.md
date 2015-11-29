@@ -6,3 +6,5 @@ Cal is a datepicker inspired by the date selector on android devices. It's simpl
 <li>jquery</li>
 <li>momentjs</li>
 <ul>
+<b>Working Demo</b>
+<a href="http://apps.majesticpenguin.com/cal/">Demo</a>
