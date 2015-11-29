@@ -6,7 +6,7 @@ Cal is a datepicker inspired by the date selector on android devices. It's simpl
 <ul>
 <li>jquery</li>
 <li>momentjs</li>
-<ul>
+</ul>
 </p>
 <p>
 <b>Working Demo</b><br />
