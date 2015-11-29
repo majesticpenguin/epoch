@@ -21,6 +21,8 @@ var Cal = (function($, moment){
          * buildcalendar
          * buildcalendartbody
          * inibuttons
+         * loadtriggers
+         * setcalendar
          * updatecalendartbody
          * updatecurrentdate
          */        
@@ -34,17 +36,20 @@ var Cal = (function($, moment){
 
                 constructor: function(options){
                     options = $.extend(true, {
-                        format: 'MM/DD/YYYY hh:mm A' //refer to momentjs docs for fromating
+                        format: 'MM/DD/YYYY hh:mm A', //refer to momentjs docs for fromating
+                        trigger: '' //object(s) that trigger cal datepicker upon focus
                     }, options);
                     
                     //this extend is only for the constructor
                     $.extend($this, options);
 
-                    $this.buildcalendar();
-                    $this.initbuttons();
+                    $this.buildcalendar(function(){
+                        $this.initbuttons();
+                        $this.loadtriggers();
+                    });
                 },
 
-                buildcalendar: function(){
+                buildcalendar: function(callback){
                     $this.currentDate = moment();
                     var currentDateObj = $this.currentDate.toObject();
                     var currentDateFormated = $this.currentDate.format($this.format);
@@ -76,12 +81,12 @@ var Cal = (function($, moment){
                         minutesHTML += '<li class="'+current+'">'+zero+i+'</li>';
                     }
 
-                    datepickerHTML = $(' \
-                        <div id="datepicker-wrapper"> \
+                    $this.datepicker = $(' \
+                        <div id="datepicker-wrapper" style="display:;"> \
                             <input type="hidden" class="currentDate" value="'+currentDateFormated+'" /> \
                             <table id="calendar-table" border="0" cellspacing="0" cellpadding="0"> \
                                 <thead> \
-                                    <tr><th class="monthyear" colspan="7"><span class="prev"></span><span data-month="'+$this.currentDate.format('M')+'" class="month">'+$this.currentDate.format('MMMM')+'</span> <span class="year">'+$this.currentDate.format('YYYY')+'</span><span class="next"></span></th></tr> \
+                                    <tr><th class="monthyear" colspan="7"><span class="prev"></span><span data-month="" class="month"></span> <span class="year"></span><span class="next"></span></th></tr> \
                                     <tr> \
                                         '+calendarHeaderHTML+' \
                                     </tr> \
@@ -103,24 +108,26 @@ var Cal = (function($, moment){
                         </div> \
                     ');
 
+                    /* SET MONTH YEAR */
+                    $this.setmonthyear();
+                    
+                    /* SET DAY */
+                    $this.setday();            
+
                     /* SET CURRENT HOUR */
-                    datepickerHTML.find('.hour ul li').css({
-                        top: '-'+(($this.currentDate.format('h') - 1) * 70)+'px'
-                    });
+                    $this.sethour();
 
                     /* SET CURRENT MINUTE */
-                    datepickerHTML.find('.minutes ul li').css({
-                        top: '-'+($this.currentDate.format('m') * 70)+'px'
-                    });
+                    $this.setminute();
 
                     /* SET CURRENT PERIOD */
-                    var periodBtn = datepickerHTML.find('.period').find('div');
+                    var periodBtn = $this.datepicker.find('.period').find('div');
                     periodBtn.attr('data-period', $this.currentDate.format('a'))
                         .html($this.currentDate.format('A'));
                     periodBtn.attr('data-offset', (periodBtn.attr('data-period') == 'am' ? '0' : '12'));
                     
-                    $this.datepicker = datepickerHTML;
-                    $('body').prepend(datepickerHTML);
+                    $('body').prepend($this.datepicker);
+                    return callback && typeof(callback) === 'function' ? callback() : true;
                 },
 
                 buildcalendartbody: function(){
@@ -129,14 +136,14 @@ var Cal = (function($, moment){
                     var firstDayOfMonth = moment($this.currentDate).startOf('month').format('d');
                     var lastDayOfMonth = moment($this.currentDate).endOf('month').format('d');
                     var calendarTableHTML = '';
-
+                    
                     /* Numbers Days Grid */
                     for(i=1;i<=totalDays;i++){
-                        var eow = moment(currentDateObj.years+'-'+(currentDateObj.months + 1)+'-'+i).endOf('week').format('D');
+                        var dow = moment([currentDateObj.years, currentDateObj.months, i]).format('d');
                         var current = currentDateObj.date == i ? ' current ' : '';
 
-                        calendarTableHTML += '<td class="day'+current+'">'+i+'</td>';
-                        calendarTableHTML += eow == i ? '</tr><tr>' : '';
+                        calendarTableHTML += '<td class="day'+current+'" data-day="'+i+'">'+i+'</td>';
+                        calendarTableHTML += dow == 6 ? '</tr><tr>' : '';
                     }
                     /* Fill Beginning Grid */
                     for(i=0;i<firstDayOfMonth;i++){
@@ -255,6 +262,47 @@ var Cal = (function($, moment){
                         event.stopImmediatePropagation();
                     });
                 },
+            
+                loadtriggers: function(){
+                    $($this.trigger).on('click.datepicker.trigger', function(){
+                        var datetime = $(this).val();
+                        $this.setcalendar(datetime);
+                    });
+                },
+
+                setcalendar: function(datetime){
+                    $this.currentDate = moment(new Date(datetime));
+
+                    $this.datepicker.find('input.currentDate').val($this.currentDate.format($this.format));
+                    $this.setmonthyear();
+                    $this.updatecalendartbody();
+                    $this.setday();
+                    $this.sethour();
+                    $this.setminute();
+                },
+
+                setday: function(){
+                    $this.datepicker.find('tbody td').removeClass('current').end()
+                        .find('tbody td[data-day="'+$this.currentDate.format('D')+'"]').addClass('current');
+                },
+
+                sethour: function(){
+                    $this.datepicker.find('.hour ul li').css({
+                        top: '-'+(($this.currentDate.format('h') - 1) * 70)+'px'
+                    });
+                },
+
+                setmonthyear: function(){
+                    $this.datepicker.find('thead .monthyear')
+                        .find('.month').attr('data-month', $this.currentDate.format('M')).html($this.currentDate.format('MMMM'))
+                        .next('.year').html($this.currentDate.format('YYYY'));
+                },
+
+                setminute: function(){
+                    $this.datepicker.find('.minutes ul li').css({
+                        top: '-'+($this.currentDate.format('m') * 70)+'px'
+                    });
+                },
 
                 updatecalendartbody: function(){
                     var calendarTbodyHTML = $this.buildcalendartbody();
@@ -284,5 +332,3 @@ var Cal = (function($, moment){
 
     return Cal;
 })(jQuery, moment);
-
-var cal = new Cal();
