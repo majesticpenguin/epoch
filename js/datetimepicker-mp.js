@@ -87,7 +87,7 @@ var DateTimePicker = (function($, moment){
                     }
 
                     $this.datepicker = $(' \
-                        <div id="datepicker-wrapper" style="display:none;"> \
+                        <div id="datepicker-wrapper" class="close"> \
                             <input type="hidden" class="currentDate" value="'+currentDateFormated+'" /> \
                             <table id="calendar-table" border="0" cellspacing="0" cellpadding="0"> \
                                 <thead> \
@@ -271,14 +271,36 @@ var DateTimePicker = (function($, moment){
                 loadtriggers: function(){
                     $($this.trigger).on('click.datepicker.trigger', function(){
                         var datetime = $(this).val().length <= 0 ?  moment() : $(this).val();
-                        $this.setcalendar(datetime);
+                        $this.setcalendar(datetime, function(){
+                            $this.revealDateTimePicker();
+                        });
                     });
                 },
 
                 revealDateTimePicker: function(){
+                    var fullHeight = $this.datepicker.outerHeight();
+                    var triggerY = $($this.trigger).position().top;
+                    var triggerHalf = $($this.trigger).outerHeight() / 2;
+
+                    $this.datepicker.css('display', 'none').delay(5).queue(function(next){
+                        $this.datepicker.css({
+                            top: (triggerY + triggerHalf)+'px',
+                            height: '0px',
+                        });
+                        next();
+                    }).delay(5).queue(function(next){
+                        $this.datepicker.css('display', 'block');
+                        next();
+                    }).delay(20).queue(function(next){
+                        $this.datepicker.css({
+                            height: fullHeight+'px',
+                            transform: 'translateY(-'+(fullHeight / 2)+'px)'
+                        });
+                        next();
+                    });
                 },
 
-                setcalendar: function(datetime){
+                setcalendar: function(datetime, callback){
                     $this.currentDate = moment(new Date(datetime));
 
                     $this.datepicker.find('input.currentDate').val($this.currentDate.format($this.format));
@@ -288,7 +310,7 @@ var DateTimePicker = (function($, moment){
                     $this.sethour();
                     $this.setminute();
 
-                    $this.revealDateTimePicker();
+                    return callback && typeof(callback) === 'function' ? callback() : true;
                 },
 
                 setday: function(){
