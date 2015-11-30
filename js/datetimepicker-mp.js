@@ -20,6 +20,7 @@ var DateTimePicker = (function($, moment){
          * constructor
          * buildcalendar
          * buildcalendartbody
+         * closeDateTimePicker
          * inibuttons
          * loadtriggers
          * revealDateTimePicker
@@ -161,6 +162,28 @@ var DateTimePicker = (function($, moment){
                     
                     return '<tr>'+calendarTableHTML+'</tr>';
                 },
+
+                closeDateTimePicker: function(){
+                    var fullHeight = $this.datepicker.outerHeight();
+                    var triggerHeight = $($this.trigger).outerHeight();
+                    var triggerHalf = $($this.trigger).outerHeight() / 2;
+
+                    $this.datepicker.queue(function(next){
+                        $this.datepicker.css({
+                            height: '0px',
+                            transform: 'translateY('+triggerHalf+'px)'
+                        });
+                        next();
+                    }).delay(450).queue(function(next){
+                        $this.datepicker.css('display', 'none')
+                            .delay(5).queue(function(next){
+                                $this.datepicker.removeAttr('style');
+                                next();
+                            });
+
+                        next();
+                    });
+                },
         
                 initbuttons: function(){
                     $('#datepicker-wrapper').on('click.scroller.up', '.up', function(event){
@@ -273,6 +296,10 @@ var DateTimePicker = (function($, moment){
                         var datetime = $(this).val().length <= 0 ?  moment() : $(this).val();
                         $this.setcalendar(datetime, function(){
                             $this.revealDateTimePicker();
+
+                            $this.datepicker.find('.button.cancel').on('click', function(){
+                                $this.closeDateTimePicker();
+                            });
                         });
                     });
                 },
@@ -291,7 +318,7 @@ var DateTimePicker = (function($, moment){
                     }).delay(5).queue(function(next){
                         $this.datepicker.css('display', 'block');
                         next();
-                    }).delay(20).queue(function(next){
+                    }).delay(30).queue(function(next){
                         $this.datepicker.css({
                             height: fullHeight+'px',
                             transform: 'translateY(-'+(fullHeight / 2)+'px)'
