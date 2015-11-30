@@ -1,6 +1,6 @@
-var Cal = (function($, moment){
+var DateTimePicker = (function($, moment){
 
-    function Cal(options){
+    function DateTimePicker(options){
         $(document).ready((function(_this, options){
             return function(){
                 var $this = _this;                
@@ -13,7 +13,7 @@ var Cal = (function($, moment){
         })(this, options));
     }
 
-    Cal.prototype = {
+    DateTimePicker.prototype = {
 
         /**
          * init
@@ -22,7 +22,7 @@ var Cal = (function($, moment){
          * buildcalendartbody
          * inibuttons
          * loadtriggers
-         * revealCal
+         * revealDateTimePicker
          * setcalendar
          * setday
          * sethour
@@ -42,7 +42,7 @@ var Cal = (function($, moment){
                 constructor: function(options){
                     options = $.extend(true, {
                         format: 'MM/DD/YYYY hh:mm A', //refer to momentjs docs for fromating
-                        trigger: '' //object(s) that trigger cal datepicker upon focus
+                        trigger: '' //object(s) that trigger datetimepicker upon focus
                     }, options);
                     
                     //this extend is only for the constructor
@@ -275,7 +275,7 @@ var Cal = (function($, moment){
                     });
                 },
 
-                revealCal: function(){
+                revealDateTimePicker: function(){
                 },
 
                 setcalendar: function(datetime){
@@ -288,7 +288,7 @@ var Cal = (function($, moment){
                     $this.sethour();
                     $this.setminute();
 
-                    $this.revealCal();
+                    $this.revealDateTimePicker();
                 },
 
                 setday: function(){
@@ -340,5 +340,5 @@ var Cal = (function($, moment){
         }
     }   
 
-    return Cal;
+    return DateTimePicker;
 })(jQuery, moment);
