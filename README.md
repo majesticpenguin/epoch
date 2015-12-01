@@ -1,7 +1,7 @@
+<p>
 <h1>DateTimePicker</h1>
-<blockquote>
-DateTimePicker is inspired by the date selector on android devices. It's simplicity of use to select a date and time form within a compact interface make it ideal for saas projects where mobile needs to be kept in mind.
-</blockquote>
+DateTimePicker is jQuery pluggin inspired by the date selector on Android devices. It's simplicity of use to select a date and time from within a compact interface make it ideal for saas projects where mobile needs to be kept in mind.
+</p>
 <p>
 <h2>Required Libraries</h2>
 <ul>
@@ -10,7 +10,7 @@ DateTimePicker is inspired by the date selector on android devices. It's simplic
 </ul>
 </p>
 <p>
-<h2>Working Demo</h2><br />
+<h2>Working Demo</h2>
 <a href="http://apps.majesticpenguin.com/datetimepicker/" target="_blank">Demo</a>
 </p>
 <p>
