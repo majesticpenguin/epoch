@@ -10,5 +10,5 @@ Cal is a datepicker inspired by the date selector on android devices. It's simpl
 </p>
 <p>
 <b>Working Demo</b><br />
-<a href="http://apps.majesticpenguin.com/cal/" target="_blank">Demo</a>
+<a href="http://apps.majesticpenguin.com/datetimepicker/" target="_blank">Demo</a>
 </p>
