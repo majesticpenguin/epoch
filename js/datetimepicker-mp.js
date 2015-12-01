@@ -185,6 +185,7 @@ var DateTimePicker = (function($, moment){
                                         .removeClass('animating');
                 
                                     $this.datepicker.find('.button.cancel').off('click.closedatetimepicker');
+                                    $this.datepicker.find('.button.set').off('click.setdatetime');
 
                                     next();        
                                     return callback && typeof(callback) === 'function' ? callback() : true;
@@ -303,6 +304,8 @@ var DateTimePicker = (function($, moment){
                 },
             
                 loadtriggers: function(){
+                    $($this.trigger).attr('readonly', 'readonly').css('user-select', 'none');
+
                     $($this.trigger).on('focus.datepicker.trigger', function(){
                         var datetime = $(this).val().length <= 0 ?  moment() : $(this).val();
 
@@ -319,7 +322,16 @@ var DateTimePicker = (function($, moment){
                         function reveal(){
                             $this.setcalendar(datetime, function(){
                                 $this.revealDateTimePicker();
+
                                 $this.datepicker.find('.button.cancel').on('click.closedatetimepicker', function(){
+                                    $this.closeDateTimePicker();
+                                });
+
+                                $this.datepicker.find('.button.set').on('click.closedatetimepicker', function(){
+                                    $this.triggerObj.removeAttr('readonly')
+                                        .val($this.datepicker.find('input.currentDate').val())
+                                        .attr('readonly', 'readonly');
+
                                     $this.closeDateTimePicker();
                                 });
                             });
