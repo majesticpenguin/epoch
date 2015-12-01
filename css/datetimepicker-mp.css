@@ -13,6 +13,7 @@ html{
     position: absolute;
     overflow: hidden;
     top: -5000px;
+    z-index: 5;
     
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -115,12 +116,6 @@ html{
 }
 #timepicker-wrapper > div:first-child{
     padding-left: 0;
-}
-#datepicker-wrapper .scroller .up{
-    box-shadow: 0 15px 20px 0px #FFF;
-}
-#datepicker-wrapper .scroller .down{
-    box-shadow: 0 -15px 20px 0px #FFF;
 }
 #datepicker-wrapper .scroller .up,
 #datepicker-wrapper .scroller .down{

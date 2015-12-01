@@ -163,26 +163,37 @@ var DateTimePicker = (function($, moment){
                     return '<tr>'+calendarTableHTML+'</tr>';
                 },
 
-                closeDateTimePicker: function(){
+                closeDateTimePicker: function(callback){
                     var fullHeight = $this.datepicker.outerHeight();
-                    var triggerHeight = $($this.trigger).outerHeight();
-                    var triggerHalf = $($this.trigger).outerHeight() / 2;
-
-                    $this.datepicker.queue(function(next){
-                        $this.datepicker.css({
-                            height: '0px',
-                            transform: 'translateY('+triggerHalf+'px)'
-                        });
-                        next();
-                    }).delay(450).queue(function(next){
-                        $this.datepicker.css('display', 'none')
-                            .delay(5).queue(function(next){
-                                $this.datepicker.removeAttr('style');
-                                next();
+                    var triggerHeight = $($this.triggerObj).outerHeight();
+                    var triggerHalf = $($this.triggerObj).outerHeight() / 2;
+                    
+                    if(!$this.datepicker.hasClass('animating')){
+                        $this.datepicker.queue(function(next){
+                            $this.datepicker.addClass('animating');
+        
+                            $this.datepicker.css({
+                                height: '0px',
+                                transform: 'translateY(0px)'
                             });
 
-                        next();
-                    });
+                            next();
+                        }).delay(450).queue(function(next){
+                            $this.datepicker.css('display', 'none')
+                                .delay(5).queue(function(next){
+                                    $this.datepicker.removeAttr('style')
+                                        .removeClass('animating');
+                
+                                    $this.datepicker.find('.button.cancel').off('click.closedatetimepicker');
+
+                                    next();        
+                                    return callback && typeof(callback) === 'function' ? callback() : true;
+                                });
+
+                            next();
+                        });
+                    };
+
                 },
         
                 initbuttons: function(){
@@ -292,26 +303,43 @@ var DateTimePicker = (function($, moment){
                 },
             
                 loadtriggers: function(){
-                    $($this.trigger).on('click.datepicker.trigger', function(){
+                    $($this.trigger).on('focus.datepicker.trigger', function(){
                         var datetime = $(this).val().length <= 0 ?  moment() : $(this).val();
-                        $this.setcalendar(datetime, function(){
-                            $this.revealDateTimePicker();
 
-                            $this.datepicker.find('.button.cancel').on('click', function(){
-                                $this.closeDateTimePicker();
+                        $this.triggerObj = $(this);
+
+                        if($this.datepicker.position().top > 0){
+                            $this.closeDateTimePicker(function(){
+                                reveal();
                             });
-                        });
+                        }else{
+                            reveal();
+                        }
+                        
+                        function reveal(){
+                            $this.setcalendar(datetime, function(){
+                                $this.revealDateTimePicker();
+                                $this.datepicker.find('.button.cancel').on('click.closedatetimepicker', function(){
+                                    $this.closeDateTimePicker();
+                                });
+                            });
+                        };
                     });
                 },
 
                 revealDateTimePicker: function(){
                     var fullHeight = $this.datepicker.outerHeight();
-                    var triggerY = $($this.trigger).position().top;
-                    var triggerHalf = $($this.trigger).outerHeight() / 2;
+                    var fullWidth = $this.datepicker.outerWidth();
+                    var triggerY = $($this.triggerObj).offset().top;
+                    var triggerX = $($this.triggerObj).offset().left;
+                    var triggerYHalf = $($this.triggerObj).outerHeight() / 2;
+                    var triggerXHalf = $($this.triggerObj).outerWidth() / 2;
 
                     $this.datepicker.css('display', 'none').delay(5).queue(function(next){
                         $this.datepicker.css({
-                            top: (triggerY + triggerHalf)+'px',
+                            top: (triggerY + triggerYHalf)+'px',
+                            left: (triggerX + triggerXHalf)+'px',
+                            marginLeft: '-'+(fullWidth / 2)+'px',
                             height: '0px',
                         });
                         next();
