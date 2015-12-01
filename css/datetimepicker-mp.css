@@ -11,7 +11,6 @@ html{
     background-color: #FFF;
     display: inline-block;
     position: absolute;
-    overflow: hidden;
     top: -5000px;
     z-index: 5;
     
@@ -177,6 +176,7 @@ html{
 #actions-wrapper{
     text-align: right;
     padding: 0 20px 20px;
+    background-color: #FFF;
 }
 #actions-wrapper .button{
     display: inline-block;

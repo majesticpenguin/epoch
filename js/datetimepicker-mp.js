@@ -174,7 +174,8 @@ var DateTimePicker = (function($, moment){
         
                             $this.datepicker.css({
                                 height: '0px',
-                                transform: 'translateY(0px)'
+                                transform: 'translateY(0px)',
+                                overflow: 'hidden'
                             });
 
                             next();
@@ -353,6 +354,7 @@ var DateTimePicker = (function($, moment){
                             left: (triggerX + triggerXHalf)+'px',
                             marginLeft: '-'+(fullWidth / 2)+'px',
                             height: '0px',
+                            overflow: 'hidden'
                         });
                         next();
                     }).delay(5).queue(function(next){
@@ -363,6 +365,9 @@ var DateTimePicker = (function($, moment){
                             height: fullHeight+'px',
                             transform: 'translateY(-'+(fullHeight / 2)+'px)'
                         });
+                        next();
+                    }).delay(150).queue(function(next){
+                        $this.datepicker.css('overflow', 'visible');
                         next();
                     });
                 },
