@@ -1,9 +1,13 @@
-<link rel='stylesheet' type='text/css' href='css/datetimepicker-mp.css' />
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel='stylesheet' type='text/css' href='css/epoch.css' />
 <link rel='stylesheet' type='text/css' href="//majesticpenguin.com/fonts/ProductSans/font.css" />
 <link rel='stylesheet' type='text/css' href="//majesticpenguin.com/fonts/MPFont/font.css" />
 <link rel='stylesheet' type='text/css' href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
 
 <script src="js/jquery-2.1.4.min.js"></script>
+<script src="js/hammer.min.js"></script>
+<script src="js/jquery.hammer.js"></script>
 <script src="js/moment.js"></script>
 <script src="js/epoch.js"></script>
 

@@ -1,4 +1,4 @@
-var Epoch = (function($, moment){
+var Epoch = (function($, moment, Hammer){
 
     function Epoch(options){
         $(document).ready((function(_this, options){
@@ -21,9 +21,11 @@ var Epoch = (function($, moment){
          * buildcalendar
          * buildcalendartbody
          * closeDateTimePicker
-         * inibuttons
+         * initbuttons
+         * loadtouchevents
          * loadtriggers
          * revealDateTimePicker
+         * scrollvalueup
          * setcalendar
          * setday
          * sethour
@@ -197,57 +199,9 @@ var Epoch = (function($, moment){
         
                 initbuttons: function(){
                     $('#datepicker-wrapper').on('click.scroller.up', '.up', function(event){
-                        var ul = $(this).next('ul');
-                        var current = ul.find('li.current');
-                        var clone = false;
-
-                        if(ul.find('li:first-child').position().top == -Math.abs(((ul.find('li').length - 1) * 70))){
-                            clone = ul.find('li:last-child').clone();
-                            ul.prepend(clone);
-                            ul.find('li').css('top', '0px');
-                        };
-
-                        ul.find('li:not(:animated)').animate({
-                            top: '-=70px'
-                        }, function(){
-                            ul.find('li').removeClass('current');
-                            current.next('li').addClass('current');
-
-                            if(clone){
-                                clone.remove();
-                                ul.find('li').css('top', '0px');
-                                ul.find('li:first-child').addClass('current');
-                            }
-
-                            $this.updatecurrentdate();
+                        $this.scrollvalueup({
+                            wrapper: $(this).closest('.scroller')
                         });
-
-                        event.stopImmediatePropagation();
-                    }).on('click.scroller.down', '.down', function(event){
-                        var ul = $(this).prev('ul');
-                        var current = ul.find('li.current');
-                        var clone = false;
-        
-                        if(ul.find('li:first-child').position().top == 0){
-                            ul.find('li').css('top', '-'+(ul.find('li').length * 70)+'px');
-                            clone = ul.find('li:first-child').clone();
-                            ul.append(clone);
-                        }
-            
-                        ul.find('li:not(:animated)').animate({
-                            top: '+=70px'
-                        }, function(){
-                            ul.find('li').removeClass('current');
-                            current.prev('li').addClass('current');
-
-                            if(clone){
-                                clone.remove();
-                                ul.find('li:last-child').addClass('current');
-                            }
-
-                            $this.updatecurrentdate();
-                        });
-
                         event.stopImmediatePropagation();
                     }).on('click.time.period', '.period', function(event){
                         var btn = $(this).find('div');
@@ -300,38 +254,68 @@ var Epoch = (function($, moment){
                         event.stopImmediatePropagation();
                     });
                 },
+
+                loadtouchevents: function(){
+                    $(document).hammer().on('swipeup', '.scroller', function(){
+                        $this.scrollvalueup({
+                            wrapper: $(this)
+                        }); 
+                    });
+                },
             
                 loadtriggers: function(){
                     $($this.trigger).attr('readonly', 'readonly').css('user-select', 'none');
 
-                    $($this.trigger).on('focus.datepicker.trigger', function(){
+                    $($this.trigger).on('click.datepicker.trigger', function(event){
+                        event.stopImmediatePropagation();
                         var datetime = $(this).val().length <= 0 ?  moment() : $(this).val();
 
                         $this.triggerObj = $(this);
                         if($this.datepicker.is(':visible')){
                             $this.closeDateTimePicker(function(){
-                                reveal();
+                                _reveal();
                             });
                         }else{
-                            reveal();
+                            _reveal();
                         }
                         
-                        function reveal(){
+                        function _reveal(){
                             $this.setcalendar(datetime, function(){
                                 $this.revealDateTimePicker();
 
                                 $this.datepicker.find('.button.cancel').on('click.closedatetimepicker', function(){
                                     $this.closeDateTimePicker();
+                                    _destroyCloseTriggers();
                                 });
 
                                 $this.datepicker.find('.button.set').on('click.closedatetimepicker', function(){
-                                    $this.triggerObj.removeAttr('readonly')
+                                    _updateDatePicker();
+                                    $this.closeDateTimePicker();
+                                    _destroyCloseTriggers();
+                                });
+
+                                $('body').addClass('epochZ');
+                                $('body.epochZ').css('z-index', '0')
+                                    .on('click.closedatetimepicker', function(){
+                                        _updateDatePicker();
+                                        $this.closeDateTimePicker();
+                                        _destroyCloseTriggers();
+                                    });
+
+                                function _destroyCloseTriggers(){
+                                    $this.datepicker.find('.button.cancel').off('click.closedatetimepicker');
+                                    $this.datepicker.find('.button.set').off('click.closedatetimepicker');
+                                    $('body').off('click.closedatetimepicker')
+                                        .removeClass('epochZ');
+                                }
+
+                                
+                                function _updateDatePicker(){
+                                    $this.triggerObj
                                         .val($this.datepicker.find('input.currentDate').val())
                                         .attr('readonly', 'readonly');
-
-                                    $this.closeDateTimePicker();
-                                });
-                            });
+                                }
+                           });
                         };
                     });/*.on('blur.closedatetimepicker', function(){
                         $this.triggerObj.removeAttr('readonly')
@@ -372,6 +356,37 @@ var Epoch = (function($, moment){
                         $this.datepicker.css('overflow', 'visible');
                         next();
                     });
+                },
+
+                scrollvalueup: function(options){
+                    options = $.extend(true, {
+                        wrapper: false
+                    }, options);
+
+                    var ul = options.wrapper.find('ul');
+                    var current = ul.find('li.current');
+                    var clone = false;
+
+                    if(ul.find('li:first-child').position().top == -Math.abs(((ul.find('li').length - 1) * 70))){
+                        clone = ul.find('li:last-child').clone();
+                        ul.prepend(clone);
+                        ul.find('li').css('top', '0px');
+                    };
+
+                        ul.find('li:not(:animated)').animate({
+                            top: '-=70px'
+                        }, function(){
+                            ul.find('li').removeClass('current');
+                            current.next('li').addClass('current');
+
+                            if(clone){
+                                clone.remove();
+                                ul.find('li').css('top', '0px');
+                                ul.find('li:first-child').addClass('current');
+                            }
+
+                            $this.updatecurrentdate();
+                        });
                 },
 
                 setcalendar: function(datetime, callback){
@@ -437,4 +452,4 @@ var Epoch = (function($, moment){
     }   
 
     return Epoch;
-})(jQuery, moment);
+})(jQuery, moment, Hammer);
