@@ -1,6 +1,6 @@
-var DateTimePicker = (function($, moment){
+var Epoch = (function($, moment){
 
-    function DateTimePicker(options){
+    function Epoch(options){
         $(document).ready((function(_this, options){
             return function(){
                 var $this = _this;                
@@ -13,7 +13,7 @@ var DateTimePicker = (function($, moment){
         })(this, options));
     }
 
-    DateTimePicker.prototype = {
+    Epoch.prototype = {
 
         /**
          * init
@@ -168,10 +168,8 @@ var DateTimePicker = (function($, moment){
                     var triggerHeight = $($this.triggerObj).outerHeight();
                     var triggerHalf = $($this.triggerObj).outerHeight() / 2;
                     
-                    if(!$this.datepicker.hasClass('animating')){
+                    if($this.datepicker.not(':animated')){
                         $this.datepicker.queue(function(next){
-                            $this.datepicker.addClass('animating');
-        
                             $this.datepicker.css({
                                 height: '0px',
                                 transform: 'translateY(0px)',
@@ -181,9 +179,8 @@ var DateTimePicker = (function($, moment){
                             next();
                         }).delay(450).queue(function(next){
                             $this.datepicker.css('display', 'none')
-                                .delay(5).queue(function(next){
-                                    $this.datepicker.removeAttr('style')
-                                        .removeClass('animating');
+                                .delay(15).queue(function(next){
+                                    $this.datepicker.removeAttr('style');
                 
                                     $this.datepicker.find('.button.cancel').off('click.closedatetimepicker');
                                     $this.datepicker.find('.button.set').off('click.setdatetime');
@@ -311,8 +308,7 @@ var DateTimePicker = (function($, moment){
                         var datetime = $(this).val().length <= 0 ?  moment() : $(this).val();
 
                         $this.triggerObj = $(this);
-
-                        if($this.datepicker.position().top > 0){
+                        if($this.datepicker.is(':visible')){
                             $this.closeDateTimePicker(function(){
                                 reveal();
                             });
@@ -337,7 +333,13 @@ var DateTimePicker = (function($, moment){
                                 });
                             });
                         };
-                    });
+                    });/*.on('blur.closedatetimepicker', function(){
+                        $this.triggerObj.removeAttr('readonly')
+                            .val($this.datepicker.find('input.currentDate').val())
+                            .attr('readonly', 'readonly');
+
+                        $this.closeDateTimePicker();
+                    });*/
                 },
 
                 revealDateTimePicker: function(){
@@ -434,5 +436,5 @@ var DateTimePicker = (function($, moment){
         }
     }   
 
-    return DateTimePicker;
+    return Epoch;
 })(jQuery, moment);
