@@ -203,6 +203,14 @@ var Epoch = (function($, moment, Hammer){
                             wrapper: $(this).closest('.scroller')
                         });
                         event.stopImmediatePropagation();
+                    }).on('click.scroller.down', '.down', function(event){
+                        $this.scrollvaluedown({
+                            wrapper: $(this).closest('.scroller')
+                        });
+                        event.stopImmediatePropagation();
+                    }).on('click.scroller.value', '.scroller > ul > li', function(event){
+                        
+                        event.stopImmediatePropagation();
                     }).on('click.time.period', '.period', function(event){
                         var btn = $(this).find('div');
 
@@ -356,6 +364,38 @@ var Epoch = (function($, moment, Hammer){
                         $this.datepicker.css('overflow', 'visible');
                         next();
                     });
+                },
+
+                scrollvaluedown: function(options){
+                    options = $.extend(true, {
+                        wrapper: false
+                    }, options);
+
+                    var ul = options.wrapper.find('ul');
+                    var current = ul.find('li.current');
+                    var clone = false;
+        
+                    if(ul.find('li:first-child').position().top == 0){
+                        ul.find('li').css('top', '-'+(ul.find('li').length * 70)+'px');
+                        clone = ul.find('li:first-child').clone();
+                        ul.append(clone);
+                    }
+            
+                    ul.find('li:not(:animated)').animate({
+                        top: '+=70px'
+                    }, function(){
+                        ul.find('li').removeClass('current');
+                        current.prev('li').addClass('current');
+
+                        if(clone){
+                            clone.remove();
+                            ul.find('li:last-child').addClass('current');
+                        }
+
+                        $this.updatecurrentdate();
+                    });
+
+                    event.stopImmediatePropagation();
                 },
 
                 scrollvalueup: function(options){

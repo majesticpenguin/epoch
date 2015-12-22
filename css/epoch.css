@@ -152,9 +152,17 @@ html{
     position: relative;
 }
 #datepicker-wrapper .scroller ul li{
-    padding: 35px 0;
-    line-height: 0rem;
+    height: 70px;
     position: relative;
+}
+#datepicker-wrapper .scroller ul li input{
+    height: 70px;
+    position: relative;
+    line-height: 4.5rem;
+    width: 55px;
+    text-align: center;
+    font-size: 3rem;
+    border: 0;
 }
 #timepicker-wrapper .scroller ul{
     width: unset;

@@ -12,7 +12,7 @@
 <script src="js/epoch.js"></script>
 
 <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-    <h1 style="white-space:nowrap;font-weight:normal;transform:scaleY(1.2);color:#FFF;font-size:7rem;margin:0;">EP<strong>ō</strong>CH<span style="font-weight:normal;font-size:3rem;line-height:3rem;vertical-align:text-top;">js</span></h1>
+    <h1 style="white-space:nowrap;font-weight:normal;transform:scaleY(1.2);color:#FFF;font-size:7rem;margin:0;z-index:-1;position:relative;">EP<strong>ō</strong>CH<span style="font-weight:normal;font-size:3rem;line-height:3rem;vertical-align:text-top;">js</span></h1>
     <input type="text" class="epoch" />
     <input type="text" class="epoch" value="04/13/2010 08:23 AM" /><br />
     <a href="//majesticpenguin.com" style="color:#888;text-decoration:none;font-size:1.5rem;line-height: 3rem;">Majestic Penguin |</a> <a href="https://github.com/majesticpenguin/datetimepicker" style="color:#888;text-decoration:none;font-size:1.5rem;line-height: 3rem;">GitHub</a>
