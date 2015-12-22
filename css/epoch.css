@@ -164,6 +164,9 @@ html{
     font-size: 3rem;
     border: 0;
 }
+#datepicker-wrapper .scroller ul li input:focus{
+    outline: 0;
+}
 #timepicker-wrapper .scroller ul{
     width: unset;
 }

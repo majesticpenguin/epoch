@@ -77,7 +77,7 @@ var Epoch = (function($, moment, Hammer){
                     var currentHour = $this.currentDate.format('h');
                     for(i=1;i<=12;i++){
                         var current = currentHour == i ? ' current ' : '';
-                        hoursHTML += '<li class="'+current+'">'+i+'</li>';
+                        hoursHTML += '<li class="'+current+'" data-value="'+i+'"><input type="text" value="'+i+'" maxlength="2" /></li>';
                     }
 
                     /* Minutes */
@@ -86,7 +86,7 @@ var Epoch = (function($, moment, Hammer){
                     for(i=0;i<60;i++){
                         var zero = i < 10 ? 0 : '';
                         var current = currentMinute == zero+i ? ' current ' : '';
-                        minutesHTML += '<li class="'+current+'">'+zero+i+'</li>';
+                        minutesHTML += '<li class="'+current+'" data-value="'+zero+i+'"><input type="text" value="'+zero+i+'" maxlength="2" /></li>';
                     }
 
                     $this.datepicker = $(' \
@@ -208,8 +208,9 @@ var Epoch = (function($, moment, Hammer){
                             wrapper: $(this).closest('.scroller')
                         });
                         event.stopImmediatePropagation();
-                    }).on('click.scroller.value', '.scroller > ul > li', function(event){
-                        
+                    }).on('click.scroller.value', '.scroller input', function(event){
+                        $(this).empty();                        
+
                         event.stopImmediatePropagation();
                     }).on('click.time.period', '.period', function(event){
                         var btn = $(this).find('div');
