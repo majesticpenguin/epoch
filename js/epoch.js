@@ -25,7 +25,7 @@ var Epoch = (function($, moment, Hammer){
          * loadtouchevents
          * loadtriggers
          * revealDateTimePicker
-         * scrollvalueup
+         * scrollvalue
          * setcalendar
          * setday
          * sethour
@@ -40,7 +40,20 @@ var Epoch = (function($, moment, Hammer){
 
                 weekdays: {
                     one: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                },                
+                },
+
+                keycodes: {
+                    "48":"0",
+                    "49":"1",
+                    "50":"2",
+                    "51":"3",
+                    "52":"4",
+                    "53":"5",
+                    "54":"6",
+                    "55":"7",
+                    "56":"8",
+                    "57":"9"
+                },          
 
                 constructor: function(options){
                     options = $.extend(true, {
@@ -199,18 +212,33 @@ var Epoch = (function($, moment, Hammer){
         
                 initbuttons: function(){
                     $('#datepicker-wrapper').on('click.scroller.up', '.up', function(event){
-                        $this.scrollvalueup({
-                            wrapper: $(this).closest('.scroller')
+                        $this.scrollvalue({
+                            wrapper: $(this).closest('.scroller'),
+                            direction: 'up'
                         });
                         event.stopImmediatePropagation();
                     }).on('click.scroller.down', '.down', function(event){
-                        $this.scrollvaluedown({
-                            wrapper: $(this).closest('.scroller')
+                        $this.scrollvalue({
+                            wrapper: $(this).closest('.scroller'),
+                            direction: 'down'
                         });
                         event.stopImmediatePropagation();
                     }).on('click.scroller.value', '.scroller input', function(event){
-                        $(this).empty();                        
+                        $(this).val($(this).parent('li').attr('data-value'));
 
+                        event.stopImmediatePropagation();
+                    }).on('keydown keypress', '.scroller input', function(event){
+                        event.preventDefault();
+
+                        event.stopImmediatePropagation();
+                    }).on('keyup.scroller.value', '.scroller input', function(event){
+                        var newValue = $this.keycodes[event.keyCode];
+                        var oldValue = $(this).parent('li').attr('data-value');
+                        var offset = newValue - oldValue;                        
+
+                        console.log(offset);
+
+                        event.preventDefault();
                         event.stopImmediatePropagation();
                     }).on('click.time.period', '.period', function(event){
                         var btn = $(this).find('div');
@@ -367,67 +395,57 @@ var Epoch = (function($, moment, Hammer){
                     });
                 },
 
-                scrollvaluedown: function(options){
+                scrollvalue: function(options){
                     options = $.extend(true, {
-                        wrapper: false
+                        wrapper: false,
+                        direction: 'down' //up or down
                     }, options);
 
                     var ul = options.wrapper.find('ul');
                     var current = ul.find('li.current');
-                    var clone = false;
+                    var cloned = false;
+
+                    switch(options.direction){
+                        case 'up':
+                            var looper = -Math.abs(((ul.find('li').length - 1) * 70));
+                            var clone = ul.find('li:last-child').clone();
+                            var looperTop = '0px';
+                            var animationDirection = '-=70px';
+                            var nextCurrent = current.next('li');
+                            var finalCurrent = ul.find('li:first-child');
+                        break;
+                        case 'down':
+                            var looper = 0;
+                            var clone = ul.find('li:first-child').clone();
+                            var looperTop = '-'+(ul.find('li').length * 70)+'px';
+                            var animationDirection = '+=70px';
+                            var nextCurrent = current.prev('li');
+                            var finalCurrent = ul.find('li:last-child');
+                        break;
+                    }
         
-                    if(ul.find('li:first-child').position().top == 0){
-                        ul.find('li').css('top', '-'+(ul.find('li').length * 70)+'px');
-                        clone = ul.find('li:first-child').clone();
-                        ul.append(clone);
+                    if(ul.find('li:first-child').position().top == looper){
+                        cloned = true;
+                        options.direction == 'up' ? ul.prepend(clone) : ul.append(clone);
+                        ul.find('li').css('top', looperTop);
                     }
             
                     ul.find('li:not(:animated)').animate({
-                        top: '+=70px'
+                        top: animationDirection
                     }, function(){
                         ul.find('li').removeClass('current');
-                        current.prev('li').addClass('current');
+                        nextCurrent.addClass('current');
 
-                        if(clone){
+                        if(cloned){
                             clone.remove();
-                            ul.find('li:last-child').addClass('current');
+                            finalCurrent.addClass('current');
+                            options.direction == 'up' ? ul.find('li').css('top', '0px') : false;
                         }
 
                         $this.updatecurrentdate();
                     });
 
                     event.stopImmediatePropagation();
-                },
-
-                scrollvalueup: function(options){
-                    options = $.extend(true, {
-                        wrapper: false
-                    }, options);
-
-                    var ul = options.wrapper.find('ul');
-                    var current = ul.find('li.current');
-                    var clone = false;
-
-                    if(ul.find('li:first-child').position().top == -Math.abs(((ul.find('li').length - 1) * 70))){
-                        clone = ul.find('li:last-child').clone();
-                        ul.prepend(clone);
-                        ul.find('li').css('top', '0px');
-                    };
-
-                        ul.find('li:not(:animated)').animate({
-                            top: '-=70px'
-                        }, function(){
-                            ul.find('li').removeClass('current');
-                            current.next('li').addClass('current');
-
-                            if(clone){
-                                clone.remove();
-                                ul.find('li').css('top', '0px');
-                                ul.find('li:first-child').addClass('current');
-                            }
-
-                            $this.updatecurrentdate();
-                        });
                 },
 
                 setcalendar: function(datetime, callback){
@@ -473,10 +491,10 @@ var Epoch = (function($, moment, Hammer){
 
                 updatecurrentdate: function(callback){
                     var year = $this.datepicker.find('thead .monthyear .year').html();
-                    var month = (moment().month($this.datepicker.find('thead .monthyear .month').html()).format('MM') - 1);
+                    var month = (moment().month($this.datepicker.find('thead .monthyear .month').html()).format('MM'));
                     var day = $this.datepicker.find('tbody td.current').html();
-                    var hour = parseInt($this.datepicker.find('#timepicker-wrapper .hour li.current').html()) + parseInt($this.datepicker.find('#timepicker-wrapper .period > div').attr('data-offset'));
-                    var minutes = $this.datepicker.find('#timepicker-wrapper .minutes li.current').html();
+                    var hour = parseInt($this.datepicker.find('#timepicker-wrapper .hour li.current input').val()) + parseInt($this.datepicker.find('#timepicker-wrapper .period > div').attr('data-offset'));
+                    var minutes = $this.datepicker.find('#timepicker-wrapper .minutes li.current input').val();
 
                     hour = hour == '24' ? '0' : hour;
                     //console.log(year+' '+month+' '+day+' '+hour+' '+minutes);
