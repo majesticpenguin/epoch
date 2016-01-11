@@ -211,6 +211,8 @@ var Epoch = (function($, moment, Hammer){
                 },
         
                 initbuttons: function(){
+                    var keyedTime = '';
+
                     $('#datepicker-wrapper').on('click.scroller.up', '.up', function(event){
                         $this.scrollvalue({
                             wrapper: $(this).closest('.scroller'),
@@ -232,11 +234,21 @@ var Epoch = (function($, moment, Hammer){
 
                         event.stopImmediatePropagation();
                     }).on('keyup.scroller.value', '.scroller input', function(event){
-                        var newValue = $this.keycodes[event.keyCode];
-                        var oldValue = $(this).parent('li').attr('data-value');
-                        var offset = newValue - oldValue;                        
+                        keyedTime = keyedTime+$this.keycodes[event.keyCode];
+                        var _wrapper = $(this).closest('.scroller');
+/* need to set this up to handle scrollers that start at 1 or 0 */
+                        setTimeout(function(){
+                            parseInt(keyedTime, 10);
 
-                        console.log(offset);
+                            if(keyedTime > 0){
+                                $this.scrollvalue({
+                                    wrapper: _wrapper,
+                                    scrollTo: keyedTime
+                                });                        
+                            }
+
+                            keyedTime = '';
+                        }, 500);
 
                         event.preventDefault();
                         event.stopImmediatePropagation();
@@ -398,54 +410,61 @@ var Epoch = (function($, moment, Hammer){
                 scrollvalue: function(options){
                     options = $.extend(true, {
                         wrapper: false,
-                        direction: 'down' //up or down
+                        direction: 'down', //up or down
+                        scrollTo: false
                     }, options);
 
                     var ul = options.wrapper.find('ul');
                     var current = ul.find('li.current');
                     var cloned = false;
+                    var liHeight = 70;
 
-                    switch(options.direction){
-                        case 'up':
-                            var looper = -Math.abs(((ul.find('li').length - 1) * 70));
-                            var clone = ul.find('li:last-child').clone();
-                            var looperTop = '0px';
-                            var animationDirection = '-=70px';
-                            var nextCurrent = current.next('li');
-                            var finalCurrent = ul.find('li:first-child');
-                        break;
-                        case 'down':
-                            var looper = 0;
-                            var clone = ul.find('li:first-child').clone();
-                            var looperTop = '-'+(ul.find('li').length * 70)+'px';
-                            var animationDirection = '+=70px';
-                            var nextCurrent = current.prev('li');
-                            var finalCurrent = ul.find('li:last-child');
-                        break;
-                    }
-        
-                    if(ul.find('li:first-child').position().top == looper){
-                        cloned = true;
-                        options.direction == 'up' ? ul.prepend(clone) : ul.append(clone);
-                        ul.find('li').css('top', looperTop);
-                    }
-            
-                    ul.find('li:not(:animated)').animate({
-                        top: animationDirection
-                    }, function(){
-                        ul.find('li').removeClass('current');
-                        nextCurrent.addClass('current');
+                    if(options.scrollTo){
+                        var liTotal = ul.children('li').length;
+                        var newTop = -Math.abs(liHeight * (options.scrollTo - 1));
 
-                        if(cloned){
-                            clone.remove();
-                            finalCurrent.addClass('current');
-                            options.direction == 'up' ? ul.find('li').css('top', '0px') : false;
+                        ul.children('li').css('top', newTop);
+                    }else{
+                        switch(options.direction){
+                            case 'up':
+                                var looper = -Math.abs(((ul.find('li').length - 1) * liHeight));
+                                var clone = ul.find('li:last-child').clone();
+                                var looperTop = '0px';
+                                var animationDirection = '-='+liHeight+'px';
+                                var nextCurrent = current.next('li');
+                                var finalCurrent = ul.find('li:first-child');
+                            break;
+                            case 'down':
+                                var looper = 0;
+                                var clone = ul.find('li:first-child').clone();
+                                var looperTop = '-'+(ul.find('li').length * liHeight)+'px';
+                                var animationDirection = '+='+liHeight+'px';
+                                var nextCurrent = current.prev('li');
+                                var finalCurrent = ul.find('li:last-child');
+                            break;
                         }
+        
+                        if(ul.find('li:first-child').position().top == looper){
+                            cloned = true;
+                            options.direction == 'up' ? ul.prepend(clone) : ul.append(clone);
+                            ul.find('li').css('top', looperTop);
+                        }
+            
+                        ul.find('li:not(:animated)').animate({
+                            top: animationDirection
+                        }, function(){
+                            ul.children('li').removeClass('current');
+                            nextCurrent.addClass('current');
 
-                        $this.updatecurrentdate();
-                    });
-
-                    event.stopImmediatePropagation();
+                            if(cloned){
+                                clone.remove();
+                                finalCurrent.addClass('current');
+                                options.direction == 'up' ? ul.find('li').css('top', '0px') : false;
+                            }
+    
+                            $this.updatecurrentdate();
+                        });
+                    }
                 },
 
                 setcalendar: function(datetime, callback){
