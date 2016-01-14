@@ -211,7 +211,7 @@ var Epoch = (function($, moment, Hammer){
                 },
         
                 initbuttons: function(){
-                    var keyedTime = '';
+                    var keyTyped = '';
 
                     $('#datepicker-wrapper').on('click.scroller.up', '.up', function(event){
                         $this.scrollvalue({
@@ -234,20 +234,22 @@ var Epoch = (function($, moment, Hammer){
 
                         event.stopImmediatePropagation();
                     }).on('keyup.scroller.value', '.scroller input', function(event){
-                        keyedTime = keyedTime+$this.keycodes[event.keyCode];
+                        keyTyped = keyTyped+$this.keycodes[event.keyCode];
                         var _wrapper = $(this).closest('.scroller');
-/* need to set this up to handle scrollers that start at 1 or 0 */
-                        setTimeout(function(){
-                            parseInt(keyedTime, 10);
+                        var _firstNumber = parseInt(_wrapper.find('ul li:first-child').attr('data-value'), 10);
 
-                            if(keyedTime > 0){
+                        setTimeout(function(){
+                            keyTyped = parseInt(keyTyped, 10);
+
+                            if(keyTyped >= _firstNumber){
                                 $this.scrollvalue({
                                     wrapper: _wrapper,
-                                    scrollTo: keyedTime
+                                    scrollTo: keyTyped,
+                                    baseValue: _firstNumber,
                                 });                        
                             }
 
-                            keyedTime = '';
+                            keyTyped = '';
                         }, 500);
 
                         event.preventDefault();
@@ -411,7 +413,8 @@ var Epoch = (function($, moment, Hammer){
                     options = $.extend(true, {
                         wrapper: false,
                         direction: 'down', //up or down
-                        scrollTo: false
+                        scrollTo: null,
+                        baseValue: 1,
                     }, options);
 
                     var ul = options.wrapper.find('ul');
@@ -419,9 +422,17 @@ var Epoch = (function($, moment, Hammer){
                     var cloned = false;
                     var liHeight = 70;
 
+//LEAVING OFF HERE -- WHEN PASSING IN 0 THE IF STATEMENT IS MISSING IT SINCE 0 is False && Null
+                    console.log(options.scrollTo);
                     if(options.scrollTo){
                         var liTotal = ul.children('li').length;
-                        var newTop = -Math.abs(liHeight * (options.scrollTo - 1));
+                        var newTop = -Math.abs(liHeight * (options.scrollTo - options.baseValue));
+                        
+                        console.log(liHeight);
+                        console.log(options.scrollTo);
+                        console.log(options.baseValue);
+                        console.log(options.scrollTo - options.baseValue);
+                        console.log(newTop);
 
                         ul.children('li').css('top', newTop);
                     }else{
