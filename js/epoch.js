@@ -76,6 +76,7 @@ var Epoch = (function($, moment, Hammer){
                     var currentDateFormated = $this.currentDate.format($this.format);
                     var calendarTableHTML = '';       
                     var calendarHeaderHTML = '';                    
+                    var calendarMonthHTML = '';
 
                     /* Numbers Days Grid */
                     calendarTableHTML = $this.buildcalendartbody(currentDateObj);
@@ -102,25 +103,39 @@ var Epoch = (function($, moment, Hammer){
                         minutesHTML += '<li class="'+current+'" data-value="'+zero+i+'"><input type="text" value="'+zero+i+'" maxlength="2" /></li>';
                     }
 
+                    /* Months */
+                    var i = 1;
+                    $.each(moment.monthsShort(), function(k, v){
+                        calendarMonthHTML += '<td value="'+k+'">'+v+'</td>';
+                        calendarMonthHTML += i == 3 ? '</tr><tr>' : '';
+
+                        i = i == 3 ? 1 : (i + 1);
+                    });
+
                     $this.datepicker = $(' \
                         <div id="datepicker-wrapper" class="close"> \
                             <input type="hidden" class="currentDate" value="'+currentDateFormated+'" /> \
-                            <table id="calendar-table" border="0" cellspacing="0" cellpadding="0"> \
-                                <thead> \
-                                    <tr><th class="monthyear" colspan="7"><span class="prev"></span><span data-month="" class="month"></span> <span class="year"></span><span class="next"></span></th></tr> \
-                                    <tr> \
-                                        '+calendarHeaderHTML+' \
-                                    </tr> \
-                                </thead> \
-                                <tbody> \
-                                    '+calendarTableHTML+' \
-                                </tbody> \
+                            <table id="calendar-header" border="0" cellspacing="0" cellpadding="0"> \
+                                <thead><tr><th class="monthyear"><span class="prev"></span><span data-month="" class="month"></span> <span class="year"></span><span class="next"></span></th></tr></thead> \
                             </table> \
-                            <div id="timepicker-wrapper"> \
-                                <div class="hour scroller"><div class="up"></div><ul>'+hoursHTML+'</ul><div class="down"></div></div> \
-                                <div class="colon">:</div> \
-                                <div class="minutes scroller"><div class="up"></div><ul>'+minutesHTML+'</ul><div class="down"></div></div> \
-                                <div class="period"><div data-period="am" data-offset="0">AM</div></div> \
+                            <div id="datetime-wrapper"> \
+                                <table id="calendar-table" border="0" cellspacing="0" cellpadding="0"> \
+                                    <thead><tr>'+calendarHeaderHTML+'</tr></thead> \
+                                    <tbody>'+calendarTableHTML+'</tbody> \
+                                </table> \
+                                <div id="timepicker-wrapper"> \
+                                    <div class="hour scroller"><div class="up"></div><ul>'+hoursHTML+'</ul><div class="down"></div></div> \
+                                    <div class="colon">:</div> \
+                                    <div class="minutes scroller"><div class="up"></div><ul>'+minutesHTML+'</ul><div class="down"></div></div> \
+                                    <div class="period"><div data-period="am" data-offset="0">AM</div></div> \
+                                </div> \
+                            </div> \
+                            <div id="month-wrapper" style="display:none;"> \
+                                <table> \
+                                    <tbody> \
+                                        <tr>'+calendarMonthHTML+'</tr> \
+                                    </tbody> \
+                                </table> \
                             </div> \
                             <div id="actions-wrapper"> \
                                 <div class="button cancel">CANCEL</div> \
@@ -238,17 +253,16 @@ var Epoch = (function($, moment, Hammer){
                         var _wrapper = $(this).closest('.scroller');
                         var _firstNumber = parseInt(_wrapper.find('ul li:first-child').attr('data-value'), 10);
 
+                        var _keyTyped = parseInt(keyTyped, 10);
+                        if(_keyTyped >= _firstNumber){
+                            $this.scrollvalue({
+                                wrapper: _wrapper,
+                                scrollTo: _keyTyped,
+                                baseValue: _firstNumber,
+                            });
+                        }
+
                         setTimeout(function(){
-                            keyTyped = parseInt(keyTyped, 10);
-
-                            if(keyTyped >= _firstNumber){
-                                $this.scrollvalue({
-                                    wrapper: _wrapper,
-                                    scrollTo: keyTyped,
-                                    baseValue: _firstNumber,
-                                });                        
-                            }
-
                             keyTyped = '';
                         }, 500);
 
@@ -345,19 +359,23 @@ var Epoch = (function($, moment, Hammer){
                                     _destroyCloseTriggers();
                                 });
 
-                                $('body').addClass('epochZ');
-                                $('body.epochZ').css('z-index', '0')
-                                    .on('click.closedatetimepicker', function(){
-                                        _updateDatePicker();
-                                        $this.closeDateTimePicker();
-                                        _destroyCloseTriggers();
-                                    });
+                                $('#datepicker-wrapper').on('mouseover', function(){
+                                    $('body').off('click.closedatetimepicker');
+                                }).on('mouseout', function(){
+                                    $('body').css('z-index', '0')
+                                        .on('click.closedatetimepicker', function(){
+                                            if($('#datepicker-wrapper').not(':hover')){
+                                                _updateDatePicker();
+                                                $this.closeDateTimePicker();
+                                                _destroyCloseTriggers();
+                                            }
+                                        });
+                                });
 
                                 function _destroyCloseTriggers(){
                                     $this.datepicker.find('.button.cancel').off('click.closedatetimepicker');
                                     $this.datepicker.find('.button.set').off('click.closedatetimepicker');
-                                    $('body').off('click.closedatetimepicker')
-                                        .removeClass('epochZ');
+                                    $('body').off('click.closedatetimepicker');
                                 }
 
                                 
@@ -413,7 +431,7 @@ var Epoch = (function($, moment, Hammer){
                     options = $.extend(true, {
                         wrapper: false,
                         direction: 'down', //up or down
-                        scrollTo: null,
+                        scrollTo: -1,
                         baseValue: 1,
                     }, options);
 
@@ -422,19 +440,21 @@ var Epoch = (function($, moment, Hammer){
                     var cloned = false;
                     var liHeight = 70;
 
-//LEAVING OFF HERE -- WHEN PASSING IN 0 THE IF STATEMENT IS MISSING IT SINCE 0 is False && Null
-                    console.log(options.scrollTo);
-                    if(options.scrollTo){
+                    var minValue = ul.find('li').first().attr('data-value');
+                    var maxValue = ul.find('li').last().attr('data-value');
+
+                    if(options.scrollTo >= 0){
+                        if(options.scrollTo < minValue || options.scrollTo > maxValue){
+                            return false;
+                        }
+
                         var liTotal = ul.children('li').length;
                         var newTop = -Math.abs(liHeight * (options.scrollTo - options.baseValue));
-                        
-                        console.log(liHeight);
-                        console.log(options.scrollTo);
-                        console.log(options.baseValue);
-                        console.log(options.scrollTo - options.baseValue);
-                        console.log(newTop);
+                        var newValue = options.scrollTo < 10 ? '0'+options.scrollTo : options.scrollTo;
 
                         ul.children('li').css('top', newTop);
+                        ul.children('li').removeClass('current');
+                        ul.find('li[data-value="'+newValue+'"]').addClass('current');
                     }else{
                         switch(options.direction){
                             case 'up':
@@ -472,10 +492,10 @@ var Epoch = (function($, moment, Hammer){
                                 finalCurrent.addClass('current');
                                 options.direction == 'up' ? ul.find('li').css('top', '0px') : false;
                             }
-    
-                            $this.updatecurrentdate();
                         });
                     }
+
+                    $this.updatecurrentdate();
                 },
 
                 setcalendar: function(datetime, callback){
@@ -527,6 +547,7 @@ var Epoch = (function($, moment, Hammer){
                     var minutes = $this.datepicker.find('#timepicker-wrapper .minutes li.current input').val();
 
                     hour = hour == '24' ? '0' : hour;
+                    month = month - 1;
                     //console.log(year+' '+month+' '+day+' '+hour+' '+minutes);
 
                     $this.currentDate = moment([year, month, day, hour, minutes]);
