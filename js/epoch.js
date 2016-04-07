@@ -20,6 +20,7 @@ var Epoch = (function($, moment, Hammer){
          * constructor
          * buildcalendar
          * buildcalendartbody
+         * buildmonthyearbody
          * closeDateTimePicker
          * initbuttons
          * loadtouchevents
@@ -40,6 +41,10 @@ var Epoch = (function($, moment, Hammer){
 
                 weekdays: {
                     one: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                },
+
+                months: {
+                    short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
                 },
 
                 keycodes: {
@@ -76,7 +81,6 @@ var Epoch = (function($, moment, Hammer){
                     var currentDateFormated = $this.currentDate.format($this.format);
                     var calendarTableHTML = '';       
                     var calendarHeaderHTML = '';                    
-                    var calendarMonthHTML = '';
 
                     /* Numbers Days Grid */
                     calendarTableHTML = $this.buildcalendartbody(currentDateObj);
@@ -103,39 +107,26 @@ var Epoch = (function($, moment, Hammer){
                         minutesHTML += '<li class="'+current+'" data-value="'+zero+i+'"><input type="text" value="'+zero+i+'" maxlength="2" /></li>';
                     }
 
-                    /* Months */
-                    var i = 1;
-                    $.each(moment.monthsShort(), function(k, v){
-                        calendarMonthHTML += '<td value="'+k+'">'+v+'</td>';
-                        calendarMonthHTML += i == 3 ? '</tr><tr>' : '';
-
-                        i = i == 3 ? 1 : (i + 1);
-                    });
-
                     $this.datepicker = $(' \
                         <div id="datepicker-wrapper" class="close"> \
                             <input type="hidden" class="currentDate" value="'+currentDateFormated+'" /> \
                             <table id="calendar-header" border="0" cellspacing="0" cellpadding="0"> \
-                                <thead><tr><th class="monthyear"><span class="prev"></span><span data-month="" class="month"></span> <span class="year"></span><span class="next"></span></th></tr></thead> \
+                                <thead><tr><th class="monthyear"><span class="prev"></span><span data-month="" class="month"></span><span class="year"></span><span class="next"></span></th></tr></thead> \
                             </table> \
-                            <div id="datetime-wrapper"> \
-                                <table id="calendar-table" border="0" cellspacing="0" cellpadding="0"> \
-                                    <thead><tr>'+calendarHeaderHTML+'</tr></thead> \
-                                    <tbody>'+calendarTableHTML+'</tbody> \
-                                </table> \
-                                <div id="timepicker-wrapper"> \
-                                    <div class="hour scroller"><div class="up"></div><ul>'+hoursHTML+'</ul><div class="down"></div></div> \
-                                    <div class="colon">:</div> \
-                                    <div class="minutes scroller"><div class="up"></div><ul>'+minutesHTML+'</ul><div class="down"></div></div> \
-                                    <div class="period"><div data-period="am" data-offset="0">AM</div></div> \
+                            <div id="datetime-monthyear-wrapper"> \
+                                <div id="datetime-wrapper" class="animate show"> \
+                                    <table id="calendar-table" border="0" cellspacing="0" cellpadding="0"> \
+                                        <thead><tr>'+calendarHeaderHTML+'</tr></thead> \
+                                        <tbody>'+calendarTableHTML+'</tbody> \
+                                    </table> \
+                                    <div id="timepicker-wrapper"> \
+                                        <div class="hour scroller"><div class="up"></div><ul>'+hoursHTML+'</ul><div class="down"></div></div> \
+                                        <div class="colon">:</div> \
+                                        <div class="minutes scroller"><div class="up"></div><ul>'+minutesHTML+'</ul><div class="down"></div></div> \
+                                        <div class="period"><div data-period="am" data-offset="0">AM</div></div> \
+                                    </div> \
                                 </div> \
-                            </div> \
-                            <div id="month-wrapper" style="display:none;"> \
-                                <table> \
-                                    <tbody> \
-                                        <tr>'+calendarMonthHTML+'</tr> \
-                                    </tbody> \
-                                </table> \
+                                <div id="monthyear-wrapper" class="animate hide"></div> \
                             </div> \
                             <div id="actions-wrapper"> \
                                 <div class="button cancel">CANCEL</div> \
@@ -191,6 +182,31 @@ var Epoch = (function($, moment, Hammer){
                     }
                     
                     return '<tr>'+calendarTableHTML+'</tr>';
+                },
+
+                buildmonthyearbody: function(options, callback){
+                    options = $.extend(true, {
+                        year: $this.currentDate.format('YYYY'),
+                        month: $this.currentDate.format('MM')
+                    }, options);
+                    var currentMonthYear = $this.currentDate.format('YYYY')+$this.currentDate.format('MM');
+                    var calendarMonthYearHTML = '';
+
+                    var i = 1;
+                    $($this.months.short).each(function(k, v){
+                        var monthNumber = k <= 10 ? '0'+(k + 1) : (k + 1);
+                        var currentClass = currentMonthYear == options.year+monthNumber ? ' selected ' : '';
+console.log(currentMonthYear);
+console.log(options.year+monthNumber);
+
+                        calendarMonthYearHTML += '<td value="'+k+'"><div class="monthyear'+currentClass+'"><div class="year">'+options.year+'</div><div class="month">'+v+'</div></div></td>';
+                        calendarMonthYearHTML += i == 3 ? '</tr><tr>' : '';
+
+                        i = i == 3 ? 1 : (i + 1);
+                    }).promise().done(function(){
+                        $('#monthyear-wrapper').append('<table><tbody><tr>'+calendarMonthYearHTML+'</tr></tbody></table>');
+                        return callback && typeof(callback) === 'function' ? callback() : true;
+                    });
                 },
 
                 closeDateTimePicker: function(callback){
@@ -313,10 +329,16 @@ var Epoch = (function($, moment, Hammer){
                         spany.html(monthyear.format('YYYY'));
                 
                         $this.updatecurrentdate(function(){
-                            $this.updatecalendartbody();
-                        });
+                            $this.monthyear-wrapperupdatecalendartbody();
+                        monthyear-wrapper});
 
                         event.stopImmediatePropagation();
+                    }).on('click.monthyear.view', '#calendar-header .month, #calendar-header .year', function(){
+                        $this.buildmonthyearbody({
+                        }, function(){
+                            $('#datetime-wrapper').toggleClass('show hide');
+                            $('#monthyear-wrapper').toggleClass('show hide');    
+                        });
                     });
                 },
 
@@ -536,7 +558,7 @@ var Epoch = (function($, moment, Hammer){
 
                 updatecalendartbody: function(){
                     var calendarTbodyHTML = $this.buildcalendartbody();
-                    $this.datepicker.find('tbody').html(calendarTbodyHTML);
+                    $this.datepicker.find('#datetime-monthyear-wrapper > #datetime-wrapper tbody').html(calendarTbodyHTML);
                 },
 
                 updatecurrentdate: function(callback){

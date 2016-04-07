@@ -38,8 +38,12 @@ html{
     padding: 8px 10px 6px;
     cursor: pointer;
 }
-#calendar-table td.current{
-    box-shadow: 5px 0 0 #AADBDF inset, -5px 0 0 #AADBDF inset;
+#calendar-table td:hover{
+    box-shadow: 5px 0 0 #E7E7E7 inset, -5px 0 0 #E7E7E7 inset;
+}
+#calendar-table td.current,
+#calendar-table td.current:hover{
+    box-shadow: 5px 0 0 #3498db inset, -5px 0 0 #3498db inset;
 }
 #calendar-table tr:first-child td{
     border-top: 1px solid #CCC;
@@ -50,6 +54,11 @@ html{
 #calendar-table thead tr:last-child th{
     border-bottom: 1px solid #CCC;
     padding: 8px 10px 6px;
+}
+#calendar-header .month,
+#calendar-header .year{
+    cursor: pointer;
+    padding: 0 3px;
 }
 #calendar-header thead th.monthyear{
     font-size: 1.5rem;
@@ -196,7 +205,53 @@ html{
 }
 #actions-wrapper .button{
     display: inline-block;
-    padding: 10px 5px;
+    padding: 10px 15px;
     cursor: pointer;
     font-weight: bold;
+}
+#actions-wrapper .button:hover {
+    background: #3498db;
+    color: #FFF;
+}
+#datetime-monthyear-wrapper{
+    position: relative;
+}
+/*#datetime-wrapper,*/
+#monthyear-wrapper{
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#datepicker-wrapper .animate{
+    transition: all 0.5s cubic-bezier(.87,-.41,.19,1.44);
+}
+#datepicker-wrapper #datetime-monthyear-wrapper .hide{
+    transform: scale(0);
+    transform-origin: center;
+}
+#datepicker-wrapper #datetime-monthyear-wrapper .show{
+    transform: scale(1);
+    transform-origin: center;
+}
+#monthyear-wrapper,
+#monthyear-wrapper table{
+    width: 100%;
+    height: 100%;
+}
+#monthyear-wrapper table td{
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1.5rem;
+}
+#monthyear-wrapper table td .monthyear {
+    padding: 15px 0;
+    margin: 0px 3px;
+    cursor: pointer;
+}
+#monthyear-wrapper table td .monthyear.selected {
+    background: #3498db;
+    color: #FFF;
+}
+#monthyear-wrapper table td .monthyear:hover {
+    background: #E7E7E7;
 }
