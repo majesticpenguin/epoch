@@ -9,7 +9,7 @@ Epoch is jQuery pluggin inspired by the date selector on Android devices. It's s
 </p>
 <p>
 <h2>Working Demo</h2>
-<a href="http://apps.majesticpenguin.com/epoch/" target="_blank">Demo</a>
+<a href="http://epochjs.com/" target="_blank">Demo</a>
 </p>
 <p>
 <h2>Usage</h2>
