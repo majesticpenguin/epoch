@@ -204,7 +204,7 @@ console.log(options.year+monthNumber);
 
                         i = i == 3 ? 1 : (i + 1);
                     }).promise().done(function(){
-                        $('#monthyear-wrapper').append('<table><tbody><tr>'+calendarMonthYearHTML+'</tr></tbody></table>');
+                        $('#monthyear-wrapper').html('').append('<table><tbody><tr>'+calendarMonthYearHTML+'</tr></tbody></table>');
                         return callback && typeof(callback) === 'function' ? callback() : true;
                     });
                 },
