@@ -221,6 +221,7 @@ html{
     position: absolute;
     top: 0;
     left: 0;
+    overflow: hidden;
 }
 #datepicker-wrapper .animate{
     transition: all 0.5s cubic-bezier(.87,-.41,.19,1.44);
@@ -237,7 +238,15 @@ html{
 #monthyear-wrapper table{
     width: 100%;
     height: 100%;
+    top: 0;
+    position: absolute;
 }
+#monthyear-wrapper .animate{
+    transition: all 0.5s ease-in-out;
+}
+#monthyear-wrapper table.current{ left: 0px; }
+#monthyear-wrapper table.next{ left: 300px; }
+#monthyear-wrapper table.prev{ left: -300px; }
 #monthyear-wrapper table td{
     text-align: center;
     vertical-align: middle;
@@ -247,6 +256,7 @@ html{
     padding: 15px 0;
     margin: 0px 3px;
     cursor: pointer;
+    line-height: 1.3rem;
 }
 #monthyear-wrapper table td .monthyear.selected {
     background: #3498db;

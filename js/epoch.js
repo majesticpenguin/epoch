@@ -189,23 +189,20 @@ var Epoch = (function($, moment, Hammer){
                         year: $this.currentDate.format('YYYY'),
                         month: $this.currentDate.format('MM')
                     }, options);
-                    var currentMonthYear = $this.currentDate.format('YYYY')+$this.currentDate.format('MM');
                     var calendarMonthYearHTML = '';
 
                     var i = 1;
                     $($this.months.short).each(function(k, v){
                         var monthNumber = k <= 10 ? '0'+(k + 1) : (k + 1);
-                        var currentClass = currentMonthYear == options.year+monthNumber ? ' selected ' : '';
-console.log(currentMonthYear);
-console.log(options.year+monthNumber);
+                        var currentClass = options.year+options.month == options.year+monthNumber ? ' selected ' : '';
 
                         calendarMonthYearHTML += '<td value="'+k+'"><div class="monthyear'+currentClass+'"><div class="year">'+options.year+'</div><div class="month">'+v+'</div></div></td>';
                         calendarMonthYearHTML += i == 3 ? '</tr><tr>' : '';
 
                         i = i == 3 ? 1 : (i + 1);
                     }).promise().done(function(){
-                        $('#monthyear-wrapper').html('').append('<table><tbody><tr>'+calendarMonthYearHTML+'</tr></tbody></table>');
-                        return callback && typeof(callback) === 'function' ? callback() : true;
+                        var _body = $('<table class="animate"><tbody><tr>'+calendarMonthYearHTML+'</tr></tbody></table>');
+                        return callback && typeof(callback) === 'function' ? callback(_body) : _body;
                     });
                 },
 
@@ -306,7 +303,30 @@ console.log(options.year+monthNumber);
                     }).on('click.monthyear.prev', '.monthyear .prev', function(event){
                         var spanm = $(this).next('.month');
                         var spany = spanm.next('.year');
-                        var monthyear = moment([spany.html(), (moment().month(spanm.html()).format('M') - 1)]).subtract(1, 'M');
+
+                        if($('#monthyear-wrapper').hasClass('show')){
+                            var currentMonthYear = $('#monthyear-wrapper > table');
+
+                            $this.buildmonthyearbody({
+                                year: moment().year($this.currentDate.format('YYYY')).subtract(1, 'Y').format('YYYY'),
+                            }, function(nextMonthYear){
+                                nextMonthYear.addClass('prev');
+                                $('#monthyear-wrapper').append(nextMonthYear);
+
+                                setTimeout(function(){
+                                    currentMonthYear.one('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd', function(){
+                                        currentMonthYear.remove();
+                                    });
+
+                                    currentMonthYear.toggleClass('current next');
+                                    nextMonthYear.toggleClass('prev current');
+                                }, 10);
+                            });
+
+                            var monthyear = moment([spany.html(), (moment().month(spanm.html()).format('M') - 1)]).subtract(1, 'Y');
+                        }else{
+                            var monthyear = moment([spany.html(), (moment().month(spanm.html()).format('M') - 1)]).subtract(1, 'M');
+                        }
                                 
                         /*update month*/
                         spanm.attr('data-month', monthyear.format('M')).html(monthyear.format('MMMM'));
@@ -321,25 +341,74 @@ console.log(options.year+monthNumber);
                     }).on('click.monthyear.next', '.monthyear .next', function(event){
                         var spany = $(this).prev('.year');
                         var spanm = spany.prev('.month');
-                        var monthyear = moment([spany.html(), (moment().month(spanm.html()).format('M') - 1)]).add(1, 'M');
-                                
+    
+                        if($('#monthyear-wrapper').hasClass('show')){
+                            var currentMonthYear = $('#monthyear-wrapper > table');
+
+                            $this.buildmonthyearbody({
+                                year: moment().year($this.currentDate.format('YYYY')).add(1, 'Y').format('YYYY'),
+                            }, function(nextMonthYear){
+                                nextMonthYear.addClass('next');
+                                $('#monthyear-wrapper').append(nextMonthYear);
+
+                                setTimeout(function(){
+                                    currentMonthYear.one('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd', function(){
+                                        currentMonthYear.remove();
+                                    });
+
+                                    currentMonthYear.toggleClass('current prev');
+                                    nextMonthYear.toggleClass('next current');
+                                }, 10);
+                            });
+
+                            var monthyear = moment([spany.html(), (moment().month(spanm.html()).format('M') - 1)]).add(1, 'Y');
+                        }else{
+                            var monthyear = moment([spany.html(), (moment().month(spanm.html()).format('M') - 1)]).add(1, 'M');
+                        }
+
                         /*update month*/
                         spanm.attr('data-month', monthyear.format('M')).html(monthyear.format('MMMM'));
                         /*update year*/
                         spany.html(monthyear.format('YYYY'));
-                
                         $this.updatecurrentdate(function(){
-                            $this.monthyear-wrapperupdatecalendartbody();
-                        monthyear-wrapper});
+                            $this.updatecalendartbody();
+                        });
 
                         event.stopImmediatePropagation();
                     }).on('click.monthyear.view', '#calendar-header .month, #calendar-header .year', function(){
                         $this.buildmonthyearbody({
-                        }, function(){
+                        }, function(bodyHTML){
+                            bodyHTML.addClass('current');
+                            $('#monthyear-wrapper').html('').append(bodyHTML);
+
                             $('#datetime-wrapper').toggleClass('show hide');
                             $('#monthyear-wrapper').toggleClass('show hide');    
                         });
-                    });
+                    }).on('click.monthyear.set', '#monthyear-wrapper .monthyear', function(event){
+                        $('.monthyear').removeClass('selected');
+                        $(this).addClass('selected');
+
+                        var spanm = $('#calendar-header').find('.month');
+                        var spany = $('#calendar-header').find('.year');
+
+                        var month = $(this).find('.month');
+                        var year = $(this).find('.year');
+
+                        var monthyear = moment([year.html(), (moment().month(month.html()).format('M') - 1)]);
+
+                        /*update month*/
+                        spanm.attr('data-month', monthyear.format('M')).html(monthyear.format('MMMM'));
+                        /*update year*/
+                        spany.html(monthyear.format('YYYY'));
+
+                        $this.updatecurrentdate(function(){
+                            $this.updatecalendartbody();
+                            $('#datetime-wrapper').toggleClass('show hide');
+                            $('#monthyear-wrapper').toggleClass('show hide');
+                        });
+
+                        event.stopImmediatePropagation();
+                    })
                 },
 
                 loadtouchevents: function(){
