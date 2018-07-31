@@ -8,10 +8,6 @@ Epoch is jQuery pluggin inspired by the date selector on Android devices. It's s
 </ul>
 </p>
 <p>
-<h2>Working Demo</h2>
-<a href="http://epochjs.com/" target="_blank">Demo</a>
-</p>
-<p>
 <h2>Usage</h2>
 <pre><code>&lt;input type="text" class="epoch" /&gt;
 
